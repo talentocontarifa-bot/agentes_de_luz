@@ -1,0 +1,1658 @@
+/* ========================================================
+   AGENTES DE LUZ 2026 - MODERN COOL & PLAYFUL EXPERIENCE
+   ======================================================== */
+
+:root {
+  --blue-dark: #0a192f;
+  --blue-primary: #10375c;
+  --blue-card: #154577;
+  --blue-sky: #e0f2fe;
+  --gold-glow: #ffb703;
+  --gold-vivid: #fcbf49;
+  --yellow-bright: #ffdd00;
+  --sand-clean: #fdfbf7;
+  --text-main: #0f172a;
+  --text-light: #f8fafc;
+  --text-muted: #64748b;
+  --green-go: #10b981;
+  --btn-shadow: 0 6px 0 #b45309;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+  background-color: var(--sand-clean);
+  color: var(--text-main);
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* ========================================================
+   POV SLINGSHOT SHOOTER INTRO
+   ======================================================== */
+#pov-game-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  background: radial-gradient(circle at 50% 35%, #2a6f97 0%, #013a63 50%, #012a4a 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s ease;
+}
+
+#pov-game-wrap.fade-away {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.05);
+}
+
+/* Camera Shake on Hit */
+.camera-shake {
+  animation: shakeScreen 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shakeScreen {
+  10%, 90% { transform: translate3d(-4px, 0, 0); }
+  20%, 80% { transform: translate3d(6px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-8px, -4px, 0); }
+  40%, 60% { transform: translate3d(8px, 4px, 0); }
+}
+
+/* Background animated sun rays */
+.pov-sunrays {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-conic-gradient(
+    rgba(255, 221, 0, 0.06) 0deg 15deg,
+    transparent 15deg 30deg
+  );
+  animation: spinSlow 50s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Top HUD bar */
+.pov-top-hud {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 900px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Boss Health Bar */
+.boss-card {
+  background: rgba(10, 25, 47, 0.85);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--gold-vivid);
+  border-radius: 999px;
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.boss-avatar-badge {
+  font-size: 1.4rem;
+}
+
+.boss-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.boss-name {
+  font-family: 'Luckiest Guy', cursive;
+  color: var(--gold-glow);
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  line-height: 1.1;
+}
+
+.boss-hp-track {
+  width: 130px;
+  height: 8px;
+  background: #334155;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.boss-hp-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ef4444, #f59e0b);
+  transition: width 0.3s ease;
+}
+
+.skip-game-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  border: none;
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: all 0.2s ease;
+}
+
+.skip-game-btn:hover {
+  background: var(--yellow-bright);
+  transform: translateY(-2px);
+}
+
+/* 3D POV Field / Arena */
+.pov-arena {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 900px;
+}
+
+/* Crosshair Target Reticle */
+#target-mark {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border: 2px dashed var(--yellow-bright);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 100;
+  animation: rotateCrosshair 6s linear infinite;
+  box-shadow: 0 0 15px rgba(255, 221, 0, 0.6);
+}
+
+#target-mark::after {
+  content: '🎯';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+}
+
+@keyframes rotateCrosshair {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Goliat in Center Distance */
+.goliat-boss-stage {
+  position: relative;
+  max-width: 380px;
+  width: 85%;
+  height: 52vh;
+  min-height: 290px;
+  max-height: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 15;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.goliat-front-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.6));
+  transition: transform 0.6s ease;
+  user-select: none;
+}
+
+/* Speech Bubble above Goliat */
+.goliat-dialogue {
+  position: absolute;
+  top: -20px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 8px 16px;
+  border-radius: 18px;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  border: 3px solid var(--gold-vivid);
+  white-space: nowrap;
+  animation: floatDialogue 3s ease-in-out infinite;
+  z-index: 25;
+}
+
+@keyframes floatDialogue {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.goliat-dialogue::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 10px 0;
+  border-style: solid;
+  border-color: #ffffff transparent;
+}
+
+.goliat-dialogue.defeated-bubble {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+  animation: none;
+}
+
+/* Goliat Defeated KO state */
+.goliat-boss-stage.goliat-ko .goliat-front-img {
+  transform: rotate(45deg) translateY(120px) scale(0.8);
+  opacity: 0.4;
+  filter: grayscale(60%);
+}
+
+/* Comic Hit POW Splash */
+#comic-pow {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(0);
+  background: linear-gradient(135deg, #ef4444, #f59e0b);
+  color: #ffffff;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 2.4rem;
+  padding: 12px 24px;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 35px #f59e0b;
+  pointer-events: none;
+  z-index: 110;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#comic-pow.active {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Flying Stone in 3D Depth */
+#flying-stone {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background: radial-gradient(circle at 35% 35%, #f1f5f9, #64748b 70%, #334155);
+  border-radius: 50%;
+  box-shadow: 0 0 25px rgba(255, 221, 0, 0.9), 0 0 8px #ffffff;
+  pointer-events: none;
+  z-index: 105;
+  display: none;
+}
+
+/* Slingshot in Foreground POV */
+.slingshot-pov-container {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 460px);
+  z-index: 30;
+  cursor: grab;
+  transition: transform 0.1s ease-out;
+}
+
+.slingshot-pov-container:active {
+  cursor: grabbing;
+}
+
+.slingshot-pov-img {
+  width: 100%;
+  display: block;
+  filter: drop-shadow(0 -10px 20px rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+
+.slingshot-snap {
+  animation: snapRebound 0.25s ease-out;
+}
+
+@keyframes snapRebound {
+  0% { transform: translateX(-50%) translateY(40px) scale(0.95); }
+  50% { transform: translateX(-50%) translateY(-15px) scale(1.05); }
+  100% { transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* Bottom Action Bar */
+.pov-bottom-bar {
+  position: relative;
+  z-index: 50;
+  padding: 10px 20px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.shoot-action-btn {
+  background: linear-gradient(135deg, #ffd700 0%, #ff9e00 100%);
+  color: #0b1f3a;
+  border: 3px solid #ffffff;
+  padding: 14px 34px;
+  border-radius: 999px;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(1.15rem, 3.8vw, 1.45rem);
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(255, 183, 3, 0.6), 0 4px 0 #b36b00;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shoot-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 183, 3, 0.8), 0 4px 0 #b36b00;
+}
+
+.shoot-action-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 10px rgba(255, 183, 3, 0.4), 0 1px 0 #b36b00;
+}
+
+.pov-hint {
+  color: #f1f5f9;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+
+/* ========================================================
+   DIVINE LIGHT CELESTIAL FLASH
+   ======================================================== */
+#divine-light-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100000;
+  background: radial-gradient(circle at center, #ffffff 0%, #fff7b8 40%, #ffc107 100%);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: opacity 0.3s ease-out;
+}
+
+#divine-light-flash.active {
+  opacity: 1;
+}
+
+.flash-hero-text {
+  padding: 24px;
+  transform: scale(0.6);
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#divine-light-flash.active .flash-hero-text {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.flash-proclaim {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(2.2rem, 7vw, 4.5rem);
+  color: var(--blue-primary);
+  text-shadow: 0 4px 0 #ffd700, 0 10px 30px rgba(255, 255, 255, 0.9);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.flash-sub {
+  font-size: clamp(1.1rem, 3.8vw, 1.7rem);
+  font-weight: 800;
+  color: #0b2545;
+  letter-spacing: 1px;
+}
+
+/* ========================================================
+   MODERN COOL INVITATION (NO BORING BOXES)
+   ======================================================== */
+#main-app {
+  min-height: 100vh;
+  background: var(--sand-clean);
+  position: relative;
+}
+
+/* Floating dynamic navbar */
+.modern-nav {
+  position: sticky;
+  top: 14px;
+  z-index: 1000;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.nav-pill {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 30px rgba(16, 55, 92, 0.08);
+  border-radius: 999px;
+  padding: 10px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand-mini-logo {
+  height: 38px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.2rem;
+  color: var(--blue-primary);
+  letter-spacing: 0.5px;
+}
+
+.nav-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-replay-pill {
+  background: #f1f5f9;
+  color: var(--blue-primary);
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-replay-pill:hover {
+  background: var(--yellow-bright);
+}
+
+.btn-rsvp-nav {
+  background: linear-gradient(135deg, #ffd700, #ff9e00);
+  color: #0b1f3a;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 8px 18px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(255, 183, 3, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.btn-rsvp-nav:hover {
+  transform: translateY(-2px);
+}
+
+/* ========================================================
+   HERO: STORYBOOK & GAMING COMBINATION
+   ======================================================== */
+.modern-hero {
+  position: relative;
+  padding: 50px 20px 80px;
+  background: radial-gradient(circle at 80% 20%, #1e4f7a 0%, #0d2847 100%);
+  color: #ffffff;
+  border-radius: 0 0 50px 50px;
+  overflow: hidden;
+}
+
+.hero-sun-burst-art {
+  position: absolute;
+  top: -40%;
+  left: -20%;
+  width: 140%;
+  height: 180%;
+  background: repeating-conic-gradient(
+    rgba(255, 215, 0, 0.04) 0deg 15deg,
+    transparent 15deg 30deg
+  );
+  animation: spinSlow 70s linear infinite;
+  pointer-events: none;
+}
+
+.hero-container {
+  position: relative;
+  z-index: 5;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 40px;
+}
+
+.hero-text-block {
+  text-align: left;
+}
+
+.event-live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fef08a;
+  margin-bottom: 20px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3);
+}
+
+.hero-main-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(2.8rem, 6.5vw, 4.8rem);
+  line-height: 1.05;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  margin-bottom: 12px;
+}
+
+.hero-main-title span {
+  color: var(--yellow-bright);
+  text-shadow: 0 4px 25px rgba(255, 221, 0, 0.5);
+}
+
+.hero-tagline {
+  font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 25px;
+  line-height: 1.4;
+}
+
+.hero-tagline strong {
+  color: var(--yellow-bright);
+}
+
+/* Event Info Floating Bubbles (Instead of flat square boxes) */
+.hero-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.info-bubble {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 18px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.info-bubble:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: var(--yellow-bright);
+}
+
+.bubble-icon {
+  font-size: 1.4rem;
+}
+
+.bubble-text strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.bubble-text small {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+/* 3D Action Buttons */
+.hero-cta-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-bubbly-main {
+  background: linear-gradient(135deg, #ffd700 0%, #ff9e00 100%);
+  color: #07172b;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.25rem;
+  padding: 16px 36px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 8px 0 #b36b00, 0 15px 25px rgba(255, 183, 3, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.15s ease;
+  border: 2px solid #ffffff;
+}
+
+.btn-bubbly-main:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 11px 0 #b36b00, 0 20px 30px rgba(255, 183, 3, 0.6);
+}
+
+.btn-bubbly-main:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #b36b00, 0 5px 10px rgba(255, 183, 3, 0.3);
+}
+
+.btn-bubbly-ghost {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 16px 26px;
+  border-radius: 999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-bubbly-ghost:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Right Illustration with Floating Stickers */
+.hero-art-showcase {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.art-glow-halo {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  filter: blur(25px);
+  animation: pulseGlow 3s infinite alternate;
+}
+
+.hero-main-badge-img {
+  position: relative;
+  z-index: 10;
+  width: min(85vw, 360px);
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.4));
+  animation: floatHero 4s ease-in-out infinite;
+}
+
+@keyframes floatHero {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Floating interactive stickers */
+.floating-sticker {
+  position: absolute;
+  z-index: 20;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 0.9rem;
+  padding: 10px 18px;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  border: 3px solid var(--yellow-bright);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: floatSticker 4s ease-in-out infinite;
+}
+
+.sticker-1 {
+  top: 8%;
+  left: -10px;
+  transform: rotate(-10deg);
+  animation-delay: 0.5s;
+}
+
+.sticker-2 {
+  bottom: 12%;
+  right: -10px;
+  transform: rotate(12deg);
+  animation-delay: 1.5s;
+}
+
+@keyframes floatSticker {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-8px) rotate(-2deg); }
+}
+
+/* ========================================================
+   COUNTDOWN BAR (STREAMLINED & COOL)
+   ======================================================== */
+.countdown-strip {
+  max-width: 800px;
+  margin: -35px auto 40px;
+  position: relative;
+  z-index: 30;
+  padding: 0 20px;
+}
+
+.countdown-pill-card {
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 14px 28px;
+  box-shadow: 0 15px 35px rgba(16, 55, 92, 0.12);
+  border: 3px solid var(--gold-vivid);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.countdown-label-left {
+  font-family: 'Luckiest Guy', cursive;
+  color: var(--blue-primary);
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.countdown-digits-wrap {
+  display: flex;
+  gap: 16px;
+}
+
+.time-digit-item {
+  text-align: center;
+}
+
+.digit-num {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.7rem;
+  color: #b45309;
+  line-height: 1;
+}
+
+.digit-txt {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+/* ========================================================
+   HEROES COLLECTIBLE BADGES (NO RIGID SQUARES)
+   ======================================================== */
+.cool-section {
+  padding: 70px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-head {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.badge-tag {
+  display: inline-block;
+  background: #fef3c7;
+  color: #b45309;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 1.5px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.section-main-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  color: var(--blue-primary);
+  line-height: 1.15;
+}
+
+.section-subtext {
+  color: var(--text-muted);
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 8px auto 0;
+}
+
+/* Heroes Banner Card - Smooth Organic Design */
+.heroes-epic-banner {
+  background: radial-gradient(circle at 90% 50%, #1e4f7a, #0b2545);
+  color: #ffffff;
+  border-radius: 36px;
+  padding: 35px;
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  box-shadow: 0 20px 40px rgba(11, 37, 69, 0.15);
+  margin-bottom: 45px;
+  overflow: hidden;
+  position: relative;
+}
+
+.heroes-epic-img {
+  width: 45%;
+  max-width: 400px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.heroes-epic-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.heroes-epic-info h3 {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 2.2rem;
+  color: var(--yellow-bright);
+  margin-bottom: 12px;
+}
+
+.heroes-epic-info p {
+  font-size: 1rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.epic-highlight-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--gold-vivid);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fef08a;
+}
+
+/* Collectible Hero Mission Badges */
+.hero-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+.hero-mission-badge {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+  border: 2px solid transparent;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  position: relative;
+}
+
+.hero-mission-badge:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: var(--gold-vivid);
+  box-shadow: 0 15px 35px rgba(255, 183, 3, 0.2);
+}
+
+.badge-round-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff3b0, #fed7aa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+}
+
+.badge-body-content {
+  flex: 1;
+}
+
+.hero-character-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.3rem;
+  color: var(--blue-primary);
+  margin-bottom: 2px;
+}
+
+.hero-mission-sub {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #b45309;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.hero-lesson-text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* ========================================================
+   WHAT'S IN STORE (PERKS) - BUBBLY ROUNDED CARDS
+   ======================================================== */
+.perks-strip {
+  background: #f1f5f9;
+  padding: 70px 20px;
+  border-radius: 50px;
+  margin: 20px 0;
+}
+
+.perks-bubbles-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.perk-bubble-card {
+  background: #ffffff;
+  border-radius: 30px;
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+  transition: transform 0.2s ease;
+  border: 2px solid #e2e8f0;
+}
+
+.perk-bubble-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--gold-vivid);
+}
+
+.perk-big-emoji {
+  font-size: 3.2rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.perk-header {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.35rem;
+  color: var(--blue-primary);
+  margin-bottom: 6px;
+}
+
+.perk-details {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ========================================================
+   MODERN ONBOARDING RSVP FORM (NO OLD-FASHIONED BOXES)
+   ======================================================== */
+.rsvp-section-wrap {
+  padding: 80px 20px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.registration-card {
+  background: #ffffff;
+  border-radius: 40px;
+  padding: 45px 35px;
+  box-shadow: 0 25px 50px -10px rgba(11, 37, 69, 0.12);
+  border: 3px solid #f1f5f9;
+}
+
+.step-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.form-field-group {
+  margin-bottom: 24px;
+}
+
+.field-label {
+  display: block;
+  font-weight: 700;
+  color: var(--blue-primary);
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.modern-text-input {
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 18px;
+  border: 2px solid #e2e8f0;
+  font-family: inherit;
+  font-size: 1.05rem;
+  color: var(--text-main);
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.modern-text-input:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: var(--gold-vivid);
+  box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.2);
+}
+
+/* Kids Dynamic List */
+.kids-roster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 35px 0 15px;
+  padding-bottom: 12px;
+  border-bottom: 2px dashed #e2e8f0;
+}
+
+.roster-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.4rem;
+  color: var(--blue-primary);
+}
+
+.add-agent-btn {
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.add-agent-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+/* Child Card */
+.agent-entry-bubble {
+  background: #fdfbf7;
+  border: 2px solid #fef08a;
+  border-radius: 24px;
+  padding: 22px;
+  margin-bottom: 18px;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.entry-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.agent-order-badge {
+  background: #fef08a;
+  color: #854d0e;
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.delete-child-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.delete-child-btn:hover {
+  text-decoration: underline;
+}
+
+.child-fields-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 15px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 580px) {
+  .child-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Allergy Pills */
+.allergy-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.allergy-pill {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.allergy-pill.selected {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #92400e;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2);
+}
+
+/* Submit Big Button */
+.complete-enrollment-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #ffd700 0%, #ff9e00 100%);
+  color: #07172b;
+  border: none;
+  padding: 18px 25px;
+  border-radius: 20px;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.45rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 8px 0 #b36b00, 0 15px 30px rgba(255, 183, 3, 0.4);
+  transition: all 0.15s ease;
+  margin-top: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.complete-enrollment-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 0 #b36b00, 0 20px 35px rgba(255, 183, 3, 0.6);
+}
+
+.complete-enrollment-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #b36b00, 0 5px 15px rgba(255, 183, 3, 0.3);
+}
+
+/* ========================================================
+   LOCATION / MAP CARD
+   ======================================================== */
+.location-section-wrap {
+  max-width: 1100px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
+}
+
+.location-bubbly-card {
+  background: #ffffff;
+  border-radius: 36px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(11, 37, 69, 0.08);
+  border: 2px solid #e2e8f0;
+}
+
+.location-banner-bar {
+  padding: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.location-headline h3 {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.7rem;
+  color: var(--blue-primary);
+  margin-bottom: 4px;
+}
+
+.location-nav-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-nav-map {
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s ease;
+}
+
+.btn-nav-map.maps {
+  background: #4285f4;
+  color: #ffffff;
+}
+
+.btn-nav-map.waze {
+  background: #33ccff;
+  color: #07172b;
+}
+
+.btn-nav-map:hover {
+  transform: translateY(-2px);
+}
+
+/* ========================================================
+   AGENT PASS MODAL & DIRECT WHATSAPP ACTION
+   ======================================================== */
+.modal-cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 25, 47, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 100050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-cover.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hologram-credential-card {
+  background: #ffffff;
+  border-radius: 32px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  border: 4px solid var(--yellow-bright);
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-cover.active .hologram-credential-card {
+  transform: scale(1);
+}
+
+.credential-top-art {
+  background: linear-gradient(135deg, #0b2545 0%, #154577 100%);
+  color: #ffffff;
+  padding: 28px 24px;
+  border-radius: 28px 28px 0 0;
+  position: relative;
+  text-align: center;
+  border-bottom: 4px dashed var(--yellow-bright);
+}
+
+.credential-badge-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.8rem;
+  color: var(--yellow-bright);
+  text-shadow: 0 2px 10px rgba(255, 221, 0, 0.4);
+}
+
+.credential-qr-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin: 18px 0;
+}
+
+.qr-white-frame {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.credential-meta-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  padding: 14px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.credential-actions {
+  padding: 24px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-whatsapp-confirm {
+  background: #25d366;
+  color: #ffffff;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  padding: 16px;
+  border-radius: 16px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 6px 0 #15803d, 0 10px 20px rgba(37, 211, 102, 0.4);
+  transition: all 0.15s ease;
+}
+
+.btn-whatsapp-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #15803d, 0 15px 25px rgba(37, 211, 102, 0.6);
+}
+
+.btn-whatsapp-confirm:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #15803d;
+}
+
+.btn-close-credential {
+  background: #e2e8f0;
+  color: #334155;
+  border: none;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* ========================================================
+   MODERN FOOTER
+   ======================================================== */
+.modern-footer {
+  background: #07172b;
+  color: #94a3b8;
+  padding: 50px 20px 30px;
+  text-align: center;
+  border-radius: 40px 40px 0 0;
+}
+
+.footer-logo-img {
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.footer-verse {
+  color: var(--yellow-bright);
+  font-weight: 600;
+  max-width: 600px;
+  margin: 10px auto;
+  font-size: 0.95rem;
+}
+
+.excel-export-discreet-btn {
+  background: transparent;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.2s ease;
+}
+
+.excel-export-discreet-btn:hover {
+  background: #1e293b;
+  color: #ffffff;
+  border-color: var(--gold-vivid);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .hero-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .hero-text-block {
+    text-align: center;
+  }
+  .hero-pills-row {
+    justify-content: center;
+  }
+  .hero-cta-group {
+    justify-content: center;
+  }
+  .heroes-epic-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+  .heroes-epic-img {
+    width: 100%;
+  }
+  .countdown-strip {
+    margin-top: -25px;
+  }
+  .countdown-pill-card {
+    flex-direction: column;
+    border-radius: 30px;
+    gap: 12px;
+  }
+}
+
+/* Kid Entry Cards in Form */
+.kid-entry-card {
+  background: #fdfbf7;
+  border: 2px solid #fed7aa;
+  border-radius: 24px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.kid-entry-card:hover {
+  border-color: var(--gold-vivid);
+}
+
+.kid-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.kid-badge {
+  background: #fef08a;
+  color: #854d0e;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 4px 14px;
+  border-radius: 999px;
+}
+
+.remove-kid-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.remove-kid-btn:hover {
+  text-decoration: underline;
+}
+
+.kid-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 15px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 580px) {
+  .kid-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-label {
+  display: block;
+  font-weight: 700;
+  color: var(--blue-primary);
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.form-label .req {
+  color: #ef4444;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text-main);
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--gold-vivid);
+  box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.2);
+}
+
+.allergy-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.chip-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip-btn:hover {
+  border-color: var(--gold-vivid);
+  background: #fffdf5;
+}
+
+.chip-btn.selected {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #92400e;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2);
+}
