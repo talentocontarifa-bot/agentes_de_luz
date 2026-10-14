@@ -1702,26 +1702,28 @@ body {
 }
 
 /* ========================================================
-   SCROLL REVEAL ANIMATIONS
+   SCROLL REVEAL ANIMATIONS (SAFE: ALWAYS VISIBLE BY DEFAULT)
    ======================================================== */
 .reveal-item {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--delay, 0ms);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .reveal-item.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+  animation: gentleRevealUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0ms);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .reveal-item {
+@keyframes gentleRevealUp {
+  0% {
+    opacity: 0.15;
+    transform: translateY(20px);
+  }
+  100% {
     opacity: 1;
-    transform: none;
-    transition: none;
+    transform: translateY(0);
   }
 }
 
