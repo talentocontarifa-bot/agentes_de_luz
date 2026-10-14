@@ -30,60 +30,80 @@
 <body>
 
   <!-- ========================================================
-       INTRO POV SHOOTER: DAVID VS GOLIAT EN PRIMERA PERSONA
+       INTRO POV SHOOTER: DAVID VS GOLIAT - MOTOR ARCADE 3D/CANVAS
        ======================================================== -->
   <div id="pov-game-wrap">
-    <div class="pov-sunrays"></div>
+    <!-- Full-screen 60FPS Interactive 3D-Depth Canvas -->
+    <canvas id="pov-battle-canvas"></canvas>
 
-    <!-- Top HUD Bar -->
+    <!-- Vignette & Impact Flash Overlay -->
+    <div id="pov-screen-fx" class="pov-screen-fx"></div>
+
+    <!-- Top Arcade HUD Bar -->
     <div class="pov-top-hud">
-      <div class="boss-card">
-        <span class="boss-avatar-badge">🪓</span>
+      <div class="boss-card" id="boss-hud-card">
+        <div class="boss-avatar-badge">
+          <span>⚔️</span>
+          <span class="boss-lvl-tag">JEFE</span>
+        </div>
         <div class="boss-meta">
-          <div class="boss-name">GOLIAT EL GIGANTE</div>
+          <div class="boss-title-row">
+            <span class="boss-name">GOLIAT DE GAT</span>
+            <span id="boss-hp-text" class="boss-hp-text">100%</span>
+          </div>
           <div class="boss-hp-track">
+            <div id="boss-hp-delay" class="boss-hp-delay"></div>
             <div id="boss-hp-fill" class="boss-hp-fill"></div>
           </div>
+          <div id="boss-status-sub" class="boss-status-sub">🛡️ Escudo activo &bull; ¡Apunta a la FRENTE! 🎯</div>
         </div>
       </div>
 
-      <button id="skip-game-btn" class="skip-game-btn">
-        Saltar intro ⏭️
-      </button>
-    </div>
-
-    <!-- 3D Arena / Field View -->
-    <div class="pov-arena">
-      <!-- Crosshair Target Reticle (Follows pointer) -->
-      <div id="target-mark"></div>
-
-      <!-- Comic POW Splash on Hit -->
-      <div id="comic-pow">¡POW! 💥</div>
-
-      <!-- Flying Stone in 3D Depth -->
-      <div id="flying-stone"></div>
-
-      <!-- Goliat in the Center -->
-      <div id="goliat-boss" class="goliat-boss-stage">
-        <div id="goliat-dialogue" class="goliat-dialogue">
-          ¡NADIE PUEDE CONTRA MÍ! 🪓
+      <div class="hud-right-cluster">
+        <div class="faith-score-pill" id="faith-score-pill">
+          <span class="faith-icon">✨</span>
+          <div>
+            <div class="faith-label">PODER DE FE</div>
+            <div id="faith-score-val" class="faith-val">0 PTS</div>
+          </div>
         </div>
-        <img src="assets/goliat_front.png" alt="Gigante Goliat" class="goliat-front-img" />
-      </div>
 
-      <!-- David's Slingshot in Foreground POV -->
-      <div id="slingshot-pov" class="slingshot-pov-container" title="¡Arrastra hacia atrás para tensar la honda y soltar!">
-        <img src="assets/slingshot_pov.png" alt="Resortera de David POV" class="slingshot-pov-img" />
+        <button id="skip-game-btn" class="skip-game-btn">
+          Saltar intro ⏭️
+        </button>
       </div>
     </div>
 
-    <!-- Bottom Quick Fire Button -->
+    <!-- Floating Dynamic Taunt / Combo Banner -->
+    <div id="goliat-dialogue" class="goliat-dialogue">
+      ¡JAJAJA! ¿TÚ CONTRA MÍ CON UNA HONDA? 🪓
+    </div>
+
+    <!-- Center Impact Callout (Headshot / Critical / Shield Break) -->
+    <div id="arcade-callout" class="arcade-callout"></div>
+
+    <!-- Bottom HUD: 5 Smooth Stones of the Brook + Action Bar -->
     <div class="pov-bottom-bar">
-      <button id="quick-shoot-btn" class="shoot-action-btn">
-        <span>🪨</span> ¡DISPARAR CON FE! <span>✨</span>
-      </button>
+      <!-- Las 5 Piedras del Arroyo -->
+      <div class="stones-belt" id="stones-belt" title="Las 5 Piedras Lisas del Arroyo">
+        <span class="stones-belt-label">PIEDRAS DEL ARROYO:</span>
+        <div class="stones-slots" id="stones-slots">
+          <div class="stone-orb active" data-stone="FE"><span>🪨</span><small>Fe</small></div>
+          <div class="stone-orb active" data-stone="VALOR"><span>🪨</span><small>Valor</small></div>
+          <div class="stone-orb active" data-stone="LUZ"><span>🪨</span><small>Luz</small></div>
+          <div class="stone-orb active" data-stone="VERDAD"><span>🪨</span><small>Verdad</small></div>
+          <div class="stone-orb active" data-stone="GRACIA"><span>🪨</span><small>Gracia</small></div>
+        </div>
+      </div>
+
+      <div class="pov-controls-row">
+        <button id="quick-shoot-btn" class="shoot-action-btn">
+          <span>☄️</span> ¡DISPARO DE FE! <span>🎯</span>
+        </button>
+      </div>
+
       <div class="pov-hint">
-        🎮 Apunta con el dedo o mouse &bull; ¡Arrastra la resortera o toca el botón!
+        👆 <strong>Toca directo donde quieras disparar</strong> o <strong>arrastra la honda</strong> para calcular la parábola 3D
       </div>
     </div>
   </div>
@@ -92,7 +112,9 @@
        CELESTIAL DIVINE LIGHT FLASHBANG
        ======================================================== -->
   <div id="divine-light-flash">
+    <div class="flash-rays-ring"></div>
     <div class="flash-hero-text">
+      <div class="flash-badge-top">👑 ¡VICTORIA DE FE! 👑</div>
       <h2 class="flash-proclaim">¡CON DIOS NINGÚN GIGANTE ES DEMASIADO GRANDE!</h2>
       <p class="flash-sub">✨ ¡BIENVENIDO A AGENTES DE LUZ 2026! ✨</p>
     </div>

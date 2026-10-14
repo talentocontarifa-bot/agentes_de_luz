@@ -37,131 +37,267 @@ body {
 }
 
 /* ========================================================
-   POV SLINGSHOT SHOOTER INTRO
+   POV SLINGSHOT SHOOTER INTRO - 60FPS ARCADE 3D ENGINE
    ======================================================== */
 #pov-game-wrap {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   z-index: 99999;
-  background: radial-gradient(circle at 50% 35%, #2a6f97 0%, #013a63 50%, #012a4a 100%);
+  background: #07192f;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   overflow: hidden;
-  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1), transform 0.85s ease;
 }
 
 #pov-game-wrap.fade-away {
   opacity: 0;
   pointer-events: none;
-  transform: scale(1.05);
+  transform: scale(1.08);
+}
+
+#pov-battle-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.pov-screen-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 55%, rgba(2, 12, 27, 0.55) 100%);
+  transition: background 0.2s ease;
+}
+
+.pov-screen-fx.crit-flash {
+  background: radial-gradient(circle at 50% 40%, rgba(255, 230, 0, 0.45) 0%, rgba(255, 120, 0, 0.35) 60%, rgba(255, 255, 255, 0.7) 100%);
 }
 
 /* Camera Shake on Hit */
 .camera-shake {
-  animation: shakeScreen 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  animation: shakeScreen 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.camera-shake-heavy {
+  animation: shakeScreenHeavy 0.65s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 @keyframes shakeScreen {
-  10%, 90% { transform: translate3d(-4px, 0, 0); }
-  20%, 80% { transform: translate3d(6px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-8px, -4px, 0); }
-  40%, 60% { transform: translate3d(8px, 4px, 0); }
+  10%, 90% { transform: translate3d(-5px, 2px, 0); }
+  20%, 80% { transform: translate3d(7px, -3px, 0); }
+  30%, 50%, 70% { transform: translate3d(-9px, -5px, 0); }
+  40%, 60% { transform: translate3d(9px, 5px, 0); }
 }
 
-/* Background animated sun rays */
-.pov-sunrays {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: repeating-conic-gradient(
-    rgba(255, 221, 0, 0.06) 0deg 15deg,
-    transparent 15deg 30deg
-  );
-  animation: spinSlow 50s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes spinSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes shakeScreenHeavy {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  15% { transform: translate3d(-14px, -8px, 0) rotate(-1.5deg); }
+  30% { transform: translate3d(14px, 10px, 0) rotate(1.5deg); }
+  45% { transform: translate3d(-12px, 6px, 0) rotate(-1deg); }
+  60% { transform: translate3d(10px, -8px, 0) rotate(1deg); }
+  75% { transform: translate3d(-6px, 4px, 0) rotate(-0.5deg); }
 }
 
 /* Top HUD bar */
 .pov-top-hud {
   position: relative;
-  z-index: 10;
+  z-index: 20;
   width: 100%;
-  max-width: 900px;
-  padding: 16px 20px;
+  max-width: 1040px;
+  padding: 12px 16px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 10px;
+  pointer-events: none;
 }
 
-/* Boss Health Bar */
+.pov-top-hud > * {
+  pointer-events: auto;
+}
+
+/* Boss Health Card */
 .boss-card {
-  background: rgba(10, 25, 47, 0.85);
-  backdrop-filter: blur(10px);
-  border: 2px solid var(--gold-vivid);
-  border-radius: 999px;
-  padding: 8px 18px;
+  background: rgba(7, 22, 44, 0.86);
+  backdrop-filter: blur(12px);
+  border: 2.5px solid var(--gold-vivid);
+  border-radius: 22px;
+  padding: 8px 14px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 18px rgba(255, 183, 3, 0.25);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s;
+}
+
+.boss-card.boss-hit-pulse {
+  transform: scale(1.06);
+  border-color: #ef4444;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
 }
 
 .boss-avatar-badge {
-  font-size: 1.4rem;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+  border: 2px solid #fca5a5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  box-shadow: inset 0 2px 6px rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.boss-lvl-tag {
+  font-size: 0.55rem;
+  font-weight: 900;
+  color: #fef08a;
+  letter-spacing: 0.5px;
+  margin-top: -3px;
 }
 
 .boss-meta {
   display: flex;
   flex-direction: column;
+  min-width: clamp(145px, 34vw, 240px);
+}
+
+.boss-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .boss-name {
   font-family: 'Luckiest Guy', cursive;
   color: var(--gold-glow);
-  font-size: 0.95rem;
+  font-size: clamp(0.88rem, 2.5vw, 1.08rem);
   letter-spacing: 1px;
-  line-height: 1.1;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.boss-hp-text {
+  font-family: 'Luckiest Guy', cursive;
+  color: #ffffff;
+  font-size: 0.85rem;
 }
 
 .boss-hp-track {
-  width: 130px;
-  height: 8px;
-  background: #334155;
+  position: relative;
+  width: 100%;
+  height: 11px;
+  background: #1e293b;
   border-radius: 999px;
   overflow: hidden;
-  margin-top: 4px;
+  margin-top: 5px;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+}
+
+.boss-hp-delay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fde047;
+  transition: width 0.65s ease 0.12s;
 }
 
 .boss-hp-fill {
+  position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #ef4444, #f59e0b);
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, #dc2626 0%, #f97316 55%, #facc15 100%);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+  transition: width 0.22s ease-out;
+}
+
+.boss-status-sub {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud-right-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.faith-score-pill {
+  background: rgba(7, 22, 44, 0.86);
+  backdrop-filter: blur(12px);
+  border: 2px solid #38bdf8;
+  border-radius: 999px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(56, 189, 248, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.faith-score-pill.score-pop {
+  transform: scale(1.14);
+  border-color: var(--yellow-bright);
+}
+
+.faith-icon {
+  font-size: 1.2rem;
+}
+
+.faith-label {
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #7dd3fc;
+  letter-spacing: 0.6px;
+  line-height: 1;
+}
+
+.faith-val {
+  font-family: 'Luckiest Guy', cursive;
+  color: #ffffff;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
 }
 
 .skip-game-btn {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   color: #0f172a;
-  border: none;
+  border: 2px solid var(--gold-vivid);
   font-weight: 800;
-  font-size: 0.82rem;
-  padding: 8px 16px;
+  font-size: 0.8rem;
+  padding: 8px 14px;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .skip-game-btn:hover {
@@ -169,216 +305,179 @@ body {
   transform: translateY(-2px);
 }
 
-/* 3D POV Field / Arena */
-.pov-arena {
-  position: relative;
-  width: 100%;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 900px;
-}
-
-/* Crosshair Target Reticle */
-#target-mark {
-  position: absolute;
-  width: 44px;
-  height: 44px;
-  border: 2px dashed var(--yellow-bright);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 100;
-  animation: rotateCrosshair 6s linear infinite;
-  box-shadow: 0 0 15px rgba(255, 221, 0, 0.6);
-}
-
-#target-mark::after {
-  content: '🎯';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1rem;
-}
-
-@keyframes rotateCrosshair {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-/* Goliat in Center Distance */
-.goliat-boss-stage {
-  position: relative;
-  max-width: 380px;
-  width: 85%;
-  height: 52vh;
-  min-height: 290px;
-  max-height: 440px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  z-index: 15;
-  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.goliat-front-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.6));
-  transition: transform 0.6s ease;
-  user-select: none;
-}
-
 /* Speech Bubble above Goliat */
 .goliat-dialogue {
   position: absolute;
-  top: -20px;
-  background: #ffffff;
+  top: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.96);
   color: #0f172a;
-  padding: 8px 16px;
-  border-radius: 18px;
+  padding: 7px 18px;
+  border-radius: 999px;
   font-family: 'Luckiest Guy', cursive;
-  font-size: clamp(0.85rem, 2.5vw, 1.05rem);
-  letter-spacing: 0.5px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  font-size: clamp(0.8rem, 2.3vw, 1.05rem);
+  letter-spacing: 0.6px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.35);
   border: 3px solid var(--gold-vivid);
   white-space: nowrap;
-  animation: floatDialogue 3s ease-in-out infinite;
-  z-index: 25;
-}
-
-@keyframes floatDialogue {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  z-index: 18;
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .goliat-dialogue::after {
   content: '';
   position: absolute;
-  bottom: -10px;
+  bottom: -9px;
   left: 50%;
   transform: translateX(-50%);
-  border-width: 10px 10px 0;
+  border-width: 9px 9px 0;
   border-style: solid;
   border-color: #ffffff transparent;
+}
+
+.goliat-dialogue.stagger-bubble {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #b45309;
+  transform: translateX(-50%) scale(1.06);
 }
 
 .goliat-dialogue.defeated-bubble {
   background: #fee2e2;
   border-color: #ef4444;
   color: #991b1b;
-  animation: none;
+  transform: translateX(-50%) scale(1.1);
 }
 
-/* Goliat Defeated KO state */
-.goliat-boss-stage.goliat-ko .goliat-front-img {
-  transform: rotate(45deg) translateY(120px) scale(0.8);
-  opacity: 0.4;
-  filter: grayscale(60%);
-}
-
-/* Comic Hit POW Splash */
-#comic-pow {
+/* Center Arcade Callout Banner */
+.arcade-callout {
   position: absolute;
+  top: 38%;
+  left: 50%;
   transform: translate(-50%, -50%) scale(0);
-  background: linear-gradient(135deg, #ef4444, #f59e0b);
-  color: #ffffff;
   font-family: 'Luckiest Guy', cursive;
-  font-size: 2.4rem;
-  padding: 12px 24px;
-  border-radius: 50%;
-  border: 4px solid #ffffff;
-  box-shadow: 0 0 35px #f59e0b;
+  font-size: clamp(1.7rem, 5.5vw, 3.2rem);
+  color: #ffffff;
+  text-align: center;
+  text-shadow: 0 4px 0 #b45309, 0 8px 25px rgba(0, 0, 0, 0.85), 0 0 30px #facc15;
+  z-index: 35;
   pointer-events: none;
-  z-index: 110;
-  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 0;
+  white-space: nowrap;
+  transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
 }
 
-#comic-pow.active {
-  transform: translate(-50%, -50%) scale(1.2);
+.arcade-callout.show {
+  transform: translate(-50%, -50%) scale(1) rotate(-3deg);
+  opacity: 1;
 }
 
-/* Flying Stone in 3D Depth */
-#flying-stone {
-  position: absolute;
-  width: 32px;
-  height: 32px;
-  background: radial-gradient(circle at 35% 35%, #f1f5f9, #64748b 70%, #334155);
-  border-radius: 50%;
-  box-shadow: 0 0 25px rgba(255, 221, 0, 0.9), 0 0 8px #ffffff;
+/* Bottom Action Bar & 5 Stones of the Brook */
+.pov-bottom-bar {
+  position: relative;
+  z-index: 25;
+  width: 100%;
+  padding: 6px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
   pointer-events: none;
-  z-index: 105;
+}
+
+.pov-bottom-bar > * {
+  pointer-events: auto;
+}
+
+.stones-belt {
+  background: rgba(7, 22, 44, 0.82);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 221, 0, 0.45);
+  border-radius: 999px;
+  padding: 5px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.stones-belt-label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #fde047;
+  letter-spacing: 0.6px;
   display: none;
 }
 
-/* Slingshot in Foreground POV */
-.slingshot-pov-container {
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(92vw, 460px);
-  z-index: 30;
-  cursor: grab;
-  transition: transform 0.1s ease-out;
+@media (min-width: 500px) {
+  .stones-belt-label {
+    display: inline;
+  }
 }
 
-.slingshot-pov-container:active {
-  cursor: grabbing;
-}
-
-.slingshot-pov-img {
-  width: 100%;
-  display: block;
-  filter: drop-shadow(0 -10px 20px rgba(0, 0, 0, 0.4));
-  pointer-events: none;
-}
-
-.slingshot-snap {
-  animation: snapRebound 0.25s ease-out;
-}
-
-@keyframes snapRebound {
-  0% { transform: translateX(-50%) translateY(40px) scale(0.95); }
-  50% { transform: translateX(-50%) translateY(-15px) scale(1.05); }
-  100% { transform: translateX(-50%) translateY(0) scale(1); }
-}
-
-/* Bottom Action Bar */
-.pov-bottom-bar {
-  position: relative;
-  z-index: 50;
-  padding: 10px 20px 25px;
+.stones-slots {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 8px;
 }
 
+.stone-orb {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 800;
+  transition: all 0.25s ease;
+  opacity: 0.35;
+  transform: scale(0.9);
+}
+
+.stone-orb.active {
+  opacity: 1;
+  transform: scale(1);
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.28), rgba(56, 189, 248, 0.25));
+  border-color: #facc15;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
+}
+
+.stone-orb small {
+  font-size: 0.65rem;
+}
+
+.pov-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .shoot-action-btn {
-  background: linear-gradient(135deg, #ffd700 0%, #ff9e00 100%);
+  background: linear-gradient(135deg, #ffd700 0%, #ff8800 100%);
   color: #0b1f3a;
   border: 3px solid #ffffff;
-  padding: 14px 34px;
+  padding: 10px 28px;
   border-radius: 999px;
   font-family: 'Luckiest Guy', cursive;
-  font-size: clamp(1.15rem, 3.8vw, 1.45rem);
+  font-size: clamp(1rem, 3.4vw, 1.3rem);
   letter-spacing: 1px;
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(255, 183, 3, 0.6), 0 4px 0 #b36b00;
+  box-shadow: 0 8px 25px rgba(255, 183, 3, 0.65), 0 4px 0 #b36b00;
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .shoot-action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(255, 183, 3, 0.8), 0 4px 0 #b36b00;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(255, 183, 3, 0.85), 0 4px 0 #b36b00;
 }
 
 .shoot-action-btn:active {
@@ -387,10 +486,15 @@ body {
 }
 
 .pov-hint {
-  color: #f1f5f9;
-  font-size: 0.82rem;
+  color: #f8fafc;
+  font-size: clamp(0.72rem, 2.1vw, 0.82rem);
   font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+  background: rgba(15, 23, 42, 0.65);
+  padding: 4px 14px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
 }
 
 /* ========================================================
@@ -401,9 +505,9 @@ body {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   z-index: 100000;
-  background: radial-gradient(circle at center, #ffffff 0%, #fff7b8 40%, #ffc107 100%);
+  background: radial-gradient(circle at center, #ffffff 0%, #fffbeb 35%, #fde047 75%, #f59e0b 100%);
   opacity: 0;
   pointer-events: none;
   display: flex;
@@ -411,18 +515,39 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  transition: opacity 0.3s ease-out;
+  overflow: hidden;
+  transition: opacity 0.35s ease-out;
 }
 
 #divine-light-flash.active {
   opacity: 1;
 }
 
+.flash-rays-ring {
+  position: absolute;
+  width: 200vmax;
+  height: 200vmax;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.45) 0deg 12deg,
+    transparent 12deg 24deg
+  );
+  animation: spinSlow 25s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .flash-hero-text {
+  position: relative;
+  z-index: 2;
   padding: 24px;
-  transform: scale(0.6);
+  transform: scale(0.5);
   opacity: 0;
-  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 #divine-light-flash.active .flash-hero-text {
@@ -430,13 +555,28 @@ body {
   opacity: 1;
 }
 
+.flash-badge-top {
+  display: inline-block;
+  background: #0f172a;
+  color: #fde047;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  padding: 8px 22px;
+  border-radius: 999px;
+  border: 3px solid #facc15;
+  margin-bottom: 16px;
+  letter-spacing: 1.5px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
 .flash-proclaim {
   font-family: 'Luckiest Guy', cursive;
-  font-size: clamp(2.2rem, 7vw, 4.5rem);
+  font-size: clamp(2.1rem, 6.8vw, 4.4rem);
   color: var(--blue-primary);
-  text-shadow: 0 4px 0 #ffd700, 0 10px 30px rgba(255, 255, 255, 0.9);
+  text-shadow: 0 4px 0 #ffd700, 0 10px 30px rgba(255, 255, 255, 0.95);
   line-height: 1.1;
   margin-bottom: 12px;
+  max-width: 900px;
 }
 
 .flash-sub {
