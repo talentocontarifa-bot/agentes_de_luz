@@ -1,24 +1,30 @@
-// ==========================================
-// AGENTES DE LUZ - INVITATION & REGISTRATION
-// ==========================================
+// ============================================================================
+// AGENTES DE LUZ 2026 - INVITATION, REGISTRATION & DUAL WHATSAPP ENGINE
+// ============================================================================
 
-const TARGET_WHATSAPP = '529983407244'; // 998 340 7244
+const TARGET_WHATSAPP_PRIMARY = '529981677617';   // 998 167 7617
+const TARGET_WHATSAPP_SECONDARY = '529983407244'; // 998 340 7244
 const STORAGE_KEY = 'agentes_de_luz_registros_2026';
 
 // 1. COUNTDOWN TIMER (30 Octubre 2026, 5:30 PM)
 function initCountdown() {
-  // Target: Oct 30, 2026 17:30:00 (GMT-5 / Local)
   const eventDate = new Date('2026-10-30T17:30:00-05:00');
 
   function update() {
     const now = new Date();
     const diff = eventDate - now;
 
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
+
     if (diff <= 0) {
-      document.getElementById('days').textContent = '00';
-      document.getElementById('hours').textContent = '00';
-      document.getElementById('minutes').textContent = '00';
-      document.getElementById('seconds').textContent = '00';
+      daysEl.textContent = '00';
+      hoursEl.textContent = '00';
+      minutesEl.textContent = '00';
+      secondsEl.textContent = '00';
       return;
     }
 
@@ -27,10 +33,10 @@ function initCountdown() {
     const m = Math.floor((diff / (1000 * 60)) % 60);
     const s = Math.floor((diff / 1000) % 60);
 
-    document.getElementById('days').textContent = String(d).padStart(2, '0');
-    document.getElementById('hours').textContent = String(h).padStart(2, '0');
-    document.getElementById('minutes').textContent = String(m).padStart(2, '0');
-    document.getElementById('seconds').textContent = String(s).padStart(2, '0');
+    daysEl.textContent = String(d).padStart(2, '0');
+    hoursEl.textContent = String(h).padStart(2, '0');
+    minutesEl.textContent = String(m).padStart(2, '0');
+    secondsEl.textContent = String(s).padStart(2, '0');
   }
 
   update();
@@ -84,7 +90,7 @@ function createKidEntry(index, name = '', age = '7', allergies = 'Ninguna') {
 function applyChip(btn, value) {
   const card = btn.closest('.kid-entry-card');
   const input = card.querySelector('.kid-allergies');
-  
+
   if (value === 'Ninguna') {
     input.value = 'Ninguna';
     card.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('selected'));
@@ -92,7 +98,6 @@ function applyChip(btn, value) {
     return;
   }
 
-  // Remove "Ninguna" if selecting another allergy
   let current = input.value.replace(/Ninguna,?\s*/gi, '').trim();
   const chipSelected = btn.classList.contains('selected');
 
@@ -102,8 +107,7 @@ function applyChip(btn, value) {
   } else {
     btn.classList.add('selected');
     current = current ? `${current}, ${value}` : value;
-    // Unselect 'Ninguna' button
-    const noneBtn = card.querySelector(".chip-btn:first-child");
+    const noneBtn = card.querySelector('.chip-btn:first-child');
     if (noneBtn) noneBtn.classList.remove('selected');
   }
 
@@ -112,6 +116,7 @@ function applyChip(btn, value) {
 
 function addKid() {
   const container = document.getElementById('kids-list-container');
+  if (!container) return;
   const newKidEl = createKidEntry(kidCounter);
   container.appendChild(newKidEl);
   kidCounter++;
@@ -148,7 +153,9 @@ function getSavedRegistrations() {
 function saveRegistration(reg) {
   const list = getSavedRegistrations();
   list.push(reg);
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (_) { /* WhatsApp remains available without storage. */ }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch (_) {}
 }
 
 // 4. SUBMIT RSVP
@@ -171,7 +178,6 @@ function handleRsvpSubmit(e) {
     return;
   }
 
-  // Collect kids
   const kidCards = document.querySelectorAll('.kid-entry-card');
   const kids = [];
 
@@ -189,10 +195,14 @@ function handleRsvpSubmit(e) {
     return;
   }
 
-  // Generate Mission ID
-  const missionId = 'AGL-' + crypto.randomUUID().slice(0, 8).toUpperCase();
+  const uuidPart = (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID().slice(0, 8).toUpperCase()
+    : Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  const missionId = 'AGL-' + uuidPart;
   const now = new Date();
-  const dateStr = now.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' +
+                  now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
   const record = {
     id: missionId,
@@ -204,21 +214,19 @@ function handleRsvpSubmit(e) {
     kids: kids
   };
 
-  // Save in local storage
   saveRegistration(record);
-
-  // Show Agent Pass Modal
   showSuccessModal(record);
 }
 
-// 5. SUCCESS MODAL & WHATSAPP
+// 5. SUCCESS MODAL & DUAL WHATSAPP CONFIRMATION (998 167 7617 & 998 340 7244)
 function showSuccessModal(record) {
   const modal = document.getElementById('pass-modal');
+  const mainApp = document.getElementById('main-app');
+
   document.getElementById('modal-pass-id').textContent = '#' + record.id;
   document.getElementById('modal-tutor-name').textContent = record.tutor;
   document.getElementById('modal-kids-count').textContent = record.kidsCount + (record.kidsCount === 1 ? ' niño' : ' niños');
 
-  // Kids details list
   const kidsListHtml = record.kids.map((k, i) => `
     <div style="margin-bottom: 6px; padding-left: 10px; border-left: 3px solid #ffb703;">
       <strong>${i + 1}. ${escapeHtml(k.name)}</strong> (${k.age} años) <br>
@@ -245,38 +253,42 @@ function showSuccessModal(record) {
 
   // Format WhatsApp Message
   const kidsWaText = record.kids.map((k, i) => `${i + 1}. *${k.name}* (${k.age} años) - Alergias: ${k.allergies}`).join('\n');
-  const waMessage = 
+  const waMessage =
 `🌟 *CONFIRMACIÓN DE ASISTENCIA - AGENTES DE LUZ* 🌟
-🏰 *Niños del Rey - Castillo del Rey*
+🏰 *Niños del Rey - Castillo del Rey Cancún*
 
 ¡Hola! Queremos registrar a nuestra familia:
 👤 *Papá / Mamá / Tutor:* ${record.tutor}
 📱 *Teléfono:* ${record.phone}
-${record.notes ? `📝 *Comentarios:* ${record.notes}\n` : ''}
-👶 *Pequeños agentes (${record.kidsCount}):*
+${record.notes ? `📝 *Comentarios:* ${record.notes}\n` : ''}👶 *Pequeños agentes (${record.kidsCount}):*
 ${kidsWaText}
 
-🎟️ *Código de Misión:* #${record.id}
+🎟️ *Código de Pase:* #${record.id}
 📅 *Fecha:* Viernes 30 de Octubre 2026, 5:30 p.m.
 📍 *Lugar:* Av. Fonatur casi esq. Prolongación La Luna
 ✨ *¡Listos para ser Agentes de Luz!*`;
 
-  const waUrl = `https://wa.me/${TARGET_WHATSAPP}?text=${encodeURIComponent(waMessage)}`;
-  const waBtn = document.getElementById('whatsapp-confirm-link');
-  if (waBtn) {
-    waBtn.href = waUrl;
+  const encodedText = encodeURIComponent(waMessage);
+  const waBtn1 = document.getElementById('whatsapp-confirm-link-1');
+  const waBtn2 = document.getElementById('whatsapp-confirm-link-2');
+
+  if (waBtn1) {
+    waBtn1.href = `https://wa.me/${TARGET_WHATSAPP_PRIMARY}?text=${encodedText}`;
+  }
+  if (waBtn2) {
+    waBtn2.href = `https://wa.me/${TARGET_WHATSAPP_SECONDARY}?text=${encodedText}`;
   }
 
-  modal.classList.add('active');
-  document.getElementById('main-invitation').inert = true;
+  if (modal) modal.classList.add('active');
+  if (mainApp) mainApp.inert = true;
   document.body.classList.add('modal-open');
-  document.getElementById('whatsapp-confirm-link').focus();
+  if (waBtn1) waBtn1.focus();
 
   // Trigger celebration confetti
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches && typeof confetti === 'function') {
     confetti({
-      particleCount: 80,
-      spread: 100,
+      particleCount: 100,
+      spread: 110,
       origin: { y: 0.6 }
     });
   }
@@ -284,10 +296,12 @@ ${kidsWaText}
 
 function closeModal() {
   const modal = document.getElementById('pass-modal');
+  const mainApp = document.getElementById('main-app');
   if (modal) modal.classList.remove('active');
-  document.getElementById('main-invitation').inert = false;
+  if (mainApp) mainApp.inert = false;
   document.body.classList.remove('modal-open');
-  document.querySelector('.submit-rsvp-btn').focus();
+  const submitBtn = document.querySelector('.complete-enrollment-btn');
+  if (submitBtn) submitBtn.focus();
 }
 
 // 6. EXCEL (.XLSX) EXPORT WITH SHEETJS
@@ -304,7 +318,6 @@ function exportRegistrationsToExcel() {
     return;
   }
 
-  // Sheet 1: Familias
   const familiesData = records.map(r => {
     const kidsSummary = r.kids.map(k => `${k.name} (${k.age}a) [${k.allergies}]`).join('; ');
     return {
@@ -318,7 +331,6 @@ function exportRegistrationsToExcel() {
     };
   });
 
-  // Sheet 2: Detalle de Niños para Cocina / Refrigerio (Box Lunch)
   const kidsData = [];
   records.forEach(r => {
     r.kids.forEach(k => {
@@ -340,82 +352,78 @@ function exportRegistrationsToExcel() {
   const wsKids = XLSX.utils.json_to_sheet(kidsData);
 
   XLSX.utils.book_append_sheet(wb, wsFamilies, 'Familias Registradas');
-  XLSX.utils.book_append_sheet(wb, wsKids, 'Niños y Alergias (Refrigerio)');
+  XLSX.utils.book_append_sheet(wb, wsKids, 'Niños y Alergias');
 
-  // Download Excel
   XLSX.writeFile(wb, 'Registros_Agentes_de_Luz_2026.xlsx');
 }
 
-// 7. CALENDAR (.ICS & GOOGLE CALENDAR)
+// 7. CALENDAR (GOOGLE CALENDAR)
 function addToCalendar() {
   const title = 'Agentes de Luz: Grandes Personajes de la Biblia';
-  const desc = 'Circuito interactivo de historias bíblicas, retos, juegos, libreta de misión, premios y refrigerio gratuito en Niños del Rey.';
+  const desc = 'Una tarde llena de sorpresas, música, diversión y Palabra de Dios. ¡Conoce nuevos amigos y conoce más de Jesús! En Niños del Rey - Castillo del Rey Cancún.';
   const loc = 'Av. Fonatur casi esquina con Prolongación La Luna, Cancún, Q. Roo';
-  const start = '20261030T223000Z'; // 5:30 PM Cancún (UTC-5) -> 22:30 UTC
-  const end = '20261031T013000Z';   // 8:30 PM Cancún (UTC-5) -> 01:30 UTC
+  const start = '20261030T223000Z';
+  const end = '20261031T013000Z';
 
-  // Google Calendar URL
   const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(desc)}&location=${encodeURIComponent(loc)}`;
   window.open(gcalUrl, '_blank');
 }
 
-// 8. INITIALIZE EVERYTHING
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+// 8. INITIALIZE EVERYTHING & SCROLL REVEAL OBSERVER
 document.addEventListener('DOMContentLoaded', () => {
   initCountdown();
-
-  // Add initial child entry
   addKid();
 
-  // Button to add more kids
   const addKidBtn = document.getElementById('add-kid-btn');
-  if (addKidBtn) {
-    addKidBtn.addEventListener('click', addKid);
-  }
+  if (addKidBtn) addKidBtn.addEventListener('click', addKid);
 
-  // Form submit
   const rsvpForm = document.getElementById('rsvp-form');
-  if (rsvpForm) {
-    rsvpForm.addEventListener('submit', handleRsvpSubmit);
-  }
+  if (rsvpForm) rsvpForm.addEventListener('submit', handleRsvpSubmit);
 
-  // Export Excel buttons
   const exportBtn1 = document.getElementById('export-excel-btn');
   const exportBtn2 = document.getElementById('export-excel-btn-footer');
   if (exportBtn1) exportBtn1.addEventListener('click', exportRegistrationsToExcel);
   if (exportBtn2) exportBtn2.addEventListener('click', exportRegistrationsToExcel);
 
-  // Calendar button
   const calBtn = document.getElementById('add-calendar-btn');
   if (calBtn) calBtn.addEventListener('click', addToCalendar);
 
-  // Close modal button
   const closeModalBtn = document.getElementById('close-modal-btn');
   if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
 
-});
+  const phoneInput = document.getElementById('tutor-phone');
+  if (phoneInput) {
+    phoneInput.addEventListener('input', e => e.target.setCustomValidity(''));
+  }
 
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-}
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('tutor-phone').addEventListener('input', e => e.target.setCustomValidity(''));
+  // Modal keyboard accessibility
   document.addEventListener('keydown', e => {
     const modal = document.getElementById('pass-modal');
-    if (!modal.classList.contains('active')) return;
+    if (!modal || !modal.classList.contains('active')) return;
     if (e.key === 'Escape') closeModal();
-    if (e.key === 'Tab') {
-      const first = document.getElementById('whatsapp-confirm-link');
-      const last = document.getElementById('close-modal-btn');
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
   });
+
+  // Scroll-Reveal Animation Observer for all .reveal-item elements
+  const revealEls = document.querySelectorAll('.reveal-item');
   if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
-    }), {threshold: 0.08});
-    document.querySelectorAll('.section-header, .mission-card, .perk-box, .heroes-showcase').forEach((el, i) => {
-      el.classList.add('reveal'); el.style.setProperty('--delay', `${i % 3 * 65}ms`); observer.observe(el);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    revealEls.forEach((el, idx) => {
+      el.style.setProperty('--delay', `${(idx % 4) * 70}ms`);
+      observer.observe(el);
     });
+  } else {
+    revealEls.forEach(el => el.classList.add('is-visible'));
   }
 });
