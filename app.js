@@ -265,7 +265,8 @@ ${kidsWaText}
 
 🎟️ *Código de Pase:* #${record.id}
 📅 *Fecha:* Viernes 30 de Octubre 2026, 5:30 p.m.
-📍 *Lugar:* Av. Fonatur casi esq. Prolongación La Luna
+📍 *Lugar:* Castillo del Rey Cancún (Av. Fonatur casi esq. Prol. La Luna)
+🗺️ *Mapa:* https://maps.app.goo.gl/UWj3HBc5RHsMQqDD9
 ✨ *¡Listos para ser Agentes de Luz!*`;
 
   const encodedText = encodeURIComponent(waMessage);
