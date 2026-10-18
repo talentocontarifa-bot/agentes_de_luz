@@ -62,11 +62,14 @@ function createKidEntry(index, name = '', age = '7', allergies = 'Ninguna') {
         <input type="text" id="kid-name-${index}" class="form-input kid-name" placeholder="Ej. Mateo o Sofía" value="${name}" required />
       </div>
       <div>
-        <label class="form-label" for="kid-age-${index}">Edad</label>
+        <label class="form-label" for="kid-age-${index}">Edad (3 a 11 años)</label>
         <select id="kid-age-${index}" class="form-select kid-age">
-          ${[...Array(15).keys()].map(i => {
+          ${[...Array(11).keys()].map(i => {
             const ageVal = i + 1;
-            return `<option value="${ageVal}" ${ageVal == age ? 'selected' : ''}>${ageVal} años</option>`;
+            const label = ageVal < 3
+              ? `${ageVal} ${ageVal === 1 ? 'año' : 'años'} (Con adulto acompañante)`
+              : `${ageVal} años`;
+            return `<option value="${ageVal}" ${ageVal == age ? 'selected' : ''}>${label}</option>`;
           }).join('')}
         </select>
       </div>
